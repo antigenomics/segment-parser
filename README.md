@@ -11,10 +11,17 @@ Instructions for downloading raw IMGT files:
 
 ### Running the software
 
-Get the [binaries]() and run as ``java -jar imgtparser.jar [options] imgt_raw_file output_prefix``.
+Get the compiled [binaries](https://github.com/antigenomics/imgtparser/releases) and run the software as
+``java -jar imgtparser.jar [options] imgt_raw_file output_prefix``.
 
 The following options can be selected:
 
 * ``-n`` include non-functional segments into output (pseudogenes, etc)
 * ``-m`` include minor alleles (segments with ``*02``, ``*03``, etc suffix)
+* ``-s`` toggle species detalisation (e.g. BALB/c and C57Bl6 for MusMusculus)
 * ``-b`` report IMGT records that cannot be parsed properly (missing conserved residues, etc)
+
+ImgtParser generates a tab-delimited table with species name, gene and segment id, nucleotide sequence and
+the reference point position: 0-based coordinate of first nucleotide after conserved Cys for Variable segments and
+before first nucleotide before conserved Phe/Trp for Joining segments. The metadata table provided with results
+lists all species and genes and tells if there are any V/D/J segments associated with them (1 in corresponding row).
