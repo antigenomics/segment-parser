@@ -26,12 +26,15 @@ class ImgtRecord {
     //>L43137      |TRBJ1-1*01 |Macaca mulatta|F|J-REGION|749..796      |48 nt |3| | |  |  |48+0=48   | | |
     //
 
-    public ImgtRecord(FastaRecord fastaRecord) {
+    public ImgtRecord(FastaRecord fastaRecord, boolean subspecies = false) {
         this.header = fastaRecord.header
         def splitHeader = header.split("\\|")
         this.species = splitHeader[2].replaceAll(/(\w)(\w*)/) { wholeMatch, initialLetter, restOfWord ->
             initialLetter.toUpperCase() + restOfWord
         }.replaceAll(" ", "")
+        if (!subspecies) {
+            species = species.split("_")[0]
+        }
         this.functionality = splitHeader[3]
         this.fullId = splitHeader[1]
         this.allele = fullId.substring(fullId.length() - 2, fullId.length())

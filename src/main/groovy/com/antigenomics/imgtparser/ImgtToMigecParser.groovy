@@ -27,7 +27,7 @@ class ImgtToMigecParser {
     private final static J_REF_PATTERN = Pattern.compile(PHE_TRP_REGEX),
                          J_REF_SHORT_PATTERN = Pattern.compile(PHE_TRP_SHORT_REGEX)
 
-    final boolean onlyFunctional, onlyMajorAllele
+    final boolean nonFunctional, minorAlleles
 
     final List<ImgtRecord> failedVReferencePoint = new ArrayList<>(),
                            failedJReferencePoint = new ArrayList<>(),
@@ -35,9 +35,9 @@ class ImgtToMigecParser {
 
     final Map<String, Map<String, boolean[]>> segmentPresence = new HashMap<>()
 
-    ImgtToMigecParser(boolean onlyFunctional, boolean onlyMajorAllele) {
-        this.onlyFunctional = onlyFunctional
-        this.onlyMajorAllele = onlyMajorAllele
+    ImgtToMigecParser(boolean nonFunctional, boolean minorAlleles) {
+        this.nonFunctional = nonFunctional
+        this.minorAlleles = minorAlleles
     }
 
     static String getGene(ImgtRecord imgtRecord) {
@@ -106,8 +106,8 @@ class ImgtToMigecParser {
         if (!segmentPresenceArr)
             geneSegmentPresenceMap.put(gene, segmentPresenceArr = new boolean[3])
 
-        if ((!onlyFunctional || functional(imgtRecord)) &&
-                (!onlyMajorAllele || majorAllele(imgtRecord))) {
+        if ((nonFunctional || functional(imgtRecord)) &&
+                (minorAlleles || majorAllele(imgtRecord))) {
             switch (imgtRecord.type) {
                 case "V-REGION":
                     int vReferencePoint = getVReferencePoint(imgtRecord)

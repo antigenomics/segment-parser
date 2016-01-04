@@ -22,6 +22,7 @@ cli.b(longOpt: 'report-bad', 'reports \"bad\" IMGT records, i.e. those that are 
         'V and J segments that do not have a reference point (conserved Cys or Phy/Trp)')
 cli.n(longOpt: 'non-func', 'include non-functional alleles (ORF and Pseudogene) in output')
 cli.m(longOpt: 'minor-allele', 'output minor alleles (*02, *03 and so on)')
+cli.s(longOpt: 'subspecies', 'more species detalisation (e.g. Balb/c and C57Bl6 for MusMusculus)')
 cli.h('display help message')
 
 def opt = cli.parse(args)
@@ -46,7 +47,8 @@ if (!new File(imgtInputFileName).exists()) {
 }
 
 def reader = new FastaReader(imgtInputFileName)
-def imgtParser = new ImgtToMigecParser(!opt.n, !opt.m)
+boolean subspecies = opt.s, nonFunctional = opt.n, minorAlleles = opt.m
+def imgtParser = new ImgtToMigecParser(nonFunctional, minorAlleles)
 
 def outputFile = new File(outputFilePrefix + ".txt")
 if (outputFile.absoluteFile.parentFile)
@@ -55,7 +57,7 @@ if (outputFile.absoluteFile.parentFile)
 outputFile.withPrintWriter { pw ->
     pw.println(MigecSegmentRecord.HEADER)
     reader.each { fastaRecord ->
-        def imgtRecord = new ImgtRecord(fastaRecord)
+        def imgtRecord = new ImgtRecord(fastaRecord, subspecies)
         def migecRecord = imgtParser.parseRecord(imgtRecord)
         if (migecRecord)
             pw.println(migecRecord)
