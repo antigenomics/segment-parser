@@ -48,6 +48,10 @@ class ImgtToMigecParser {
         record.sequence.replaceAll("\\.", "")
     }
 
+    static String sequenceNoGaps(String sequence) {
+        sequence.replaceAll("\\.", "")
+    }
+
     static boolean majorAllele(ImgtRecord record) {
         record.allele == "01"
     }
@@ -89,10 +93,37 @@ class ImgtToMigecParser {
         getJReferencePoint(sequenceWithoutGaps)
     }
 
-    static MigecSegmentRecord createRecord(ImgtRecord imgtRecord, String gene, String segment, int referencePoint) {
+    static MigecSegmentRecord createRecord(ImgtRecord imgtRecord, String gene, String segment) {
+        createRecord(imgtRecord, gene, segment,
+                -1)
+    }
+
+    static MigecSegmentRecord createRecord(ImgtRecord imgtRecord, String gene, String segment,
+                                           int referencePoint) {
+        createRecord(imgtRecord, gene, segment,
+                referencePoint, -1, -1, -1, -1)
+    }
+
+    static MigecSegmentRecord createRecord(ImgtRecord imgtRecord, String gene, String segment,
+                                           int referencePoint,
+                                           int cdr1Start, int cdr1End, int cdr2Start, int cdr2End) {
         new MigecSegmentRecord(imgtRecord.species, gene,
                 segment, imgtRecord.fullId, sequenceNoGaps(imgtRecord),
-                referencePoint)
+                referencePoint,
+                cdr1Start, cdr1End, cdr2Start, cdr2End)
+    }
+
+    static int[] getCdr12Indices(ImgtRecord imgtRecord) {
+        def cdr1 = sequenceNoGaps(imgtRecord.sequence[(26 * 3)..(38 * 3)]),
+            cdr2 = sequenceNoGaps(imgtRecord.sequence[(55 * 3)..(65 * 3)])
+
+        def fullSeq = sequenceNoGaps(imgtRecord.sequence)
+
+        int cdr1Start = fullSeq.indexOf(cdr1),
+            cdr2Start = fullSeq.indexOf(cdr2)
+
+        [cdr1Start, cdr1Start + cdr1.length() - 1,
+         cdr2Start, cdr2Start + cdr2.length() - 1] as int[]
     }
 
     MigecSegmentRecord parseRecord(ImgtRecord imgtRecord) {
@@ -116,10 +147,14 @@ class ImgtToMigecParser {
                         return null
                     }
                     segmentPresenceArr[0] = true
-                    return createRecord(imgtRecord, gene, "Variable", vReferencePoint)
+                    int[] cdrIndices = getCdr12Indices(imgtRecord)
+                    return createRecord(imgtRecord, gene, "Variable", vReferencePoint,
+                            cdrIndices[0], cdrIndices[1], cdrIndices[2], cdrIndices[3])
+
                 case "D-REGION":
                     segmentPresenceArr[1] = true
-                    return createRecord(imgtRecord, gene, "Diversity", -1)
+                    return createRecord(imgtRecord, gene, "Diversity")
+
                 case "J-REGION":
                     int jReferencePoint = getJReferencePoint(imgtRecord)
                     if (jReferencePoint < 0) {

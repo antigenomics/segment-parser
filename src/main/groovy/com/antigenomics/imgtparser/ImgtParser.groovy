@@ -50,17 +50,35 @@ def reader = new FastaReader(imgtInputFileName)
 boolean subspecies = opt.s, nonFunctional = opt.n, minorAlleles = opt.m
 def imgtParser = new ImgtToMigecParser(nonFunctional, minorAlleles)
 
-def outputFile = new File(outputFilePrefix + ".txt")
+def outputFile = new File(outputFilePrefix + ".txt"),
+    outputFileCdr12 = new File(outputFilePrefix + ".cdr12.txt")
 if (outputFile.absoluteFile.parentFile)
     outputFile.absoluteFile.parentFile.mkdirs()
 
 outputFile.withPrintWriter { pw ->
-    pw.println(MigecSegmentRecord.HEADER)
-    reader.each { fastaRecord ->
-        def imgtRecord = new ImgtRecord(fastaRecord, subspecies)
-        def migecRecord = imgtParser.parseRecord(imgtRecord)
-        if (migecRecord)
-            pw.println(migecRecord)
+    outputFileCdr12.withPrintWriter { pw12 ->
+        pw.println(MigecSegmentRecord.HEADER)
+        pw12.println("species\tgene\tseqnt\tseqaa\tcdr1nt\tcdr2nt\tcdr1aa\tcdr2aa")
+        reader.each { fastaRecord ->
+            def imgtRecord = new ImgtRecord(fastaRecord, subspecies)
+            def migecRecord = imgtParser.parseRecord(imgtRecord)
+            if (migecRecord) {
+                pw.println(migecRecord)
+
+                if (migecRecord.segment == "Variable" &&
+                        [migecRecord.cdr1Start, migecRecord.cdr2Start,
+                         migecRecord.cdr1End, migecRecord.cdr2End].every { it >= 0 }) {
+                    def cdr1nt = migecRecord.sequence.substring(migecRecord.cdr1Start, migecRecord.cdr1End),
+                        cdr2nt = migecRecord.sequence.substring(migecRecord.cdr2Start, migecRecord.cdr2End),
+                        cdr1aa = Util.translateLinear(cdr1nt),
+                        cdr2aa = Util.translateLinear(cdr2nt)
+
+                    pw12.println([migecRecord.species, migecRecord.id,
+                                  migecRecord.sequence, Util.translateLinear(migecRecord.sequence),
+                                  cdr1nt, cdr2nt, cdr1aa, cdr2aa].join("\t"))
+                }
+            }
+        }
     }
 }
 

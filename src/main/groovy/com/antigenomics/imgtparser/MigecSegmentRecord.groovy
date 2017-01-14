@@ -18,21 +18,38 @@ package com.antigenomics.imgtparser
 
 class MigecSegmentRecord {
     final String species, gene, segment, id, sequence
-    final int referencePoint
+    final int referencePoint, cdr1Start, cdr1End, cdr2Start, cdr2End
 
-    MigecSegmentRecord(String species, String gene, String segment, String id, String sequence, int referencePoint) {
+    MigecSegmentRecord(String species, String gene, String segment, String id, String sequence) {
+        this(species, gene, segment, id, sequence, -1)
+    }
+
+    MigecSegmentRecord(String species, String gene, String segment, String id, String sequence,
+                       int referencePoint) {
+        this(species, gene, segment, id, sequence, referencePoint, -1, -1, -1, -1)
+    }
+
+    MigecSegmentRecord(String species, String gene, String segment, String id, String sequence,
+                       int referencePoint, int cdr1Start, int cdr1End, int cdr2Start, int cdr2End) {
         this.species = species
         this.gene = gene
         this.segment = segment
         this.id = id
         this.sequence = sequence
         this.referencePoint = referencePoint
+        this.cdr1Start = cdr1Start
+        this.cdr1End = cdr1End
+        this.cdr2Start = cdr2Start
+        this.cdr2End = cdr2End
     }
 
-    final static String HEADER = "#species\tgene\tsegment\tid\treference_point\tsequence"
+    final static String HEADER = "#species\tgene\tsegment\tid\t" +
+            "reference_point\tsequence\t" +
+            "cdr1.start\tcdr1.end\tcdr2.start\tcdr2.end"
 
     @Override
     String toString() {
-        [species, gene, segment, id, referencePoint, sequence].join("\t")
+        [species, gene, segment, id, referencePoint, sequence,
+         cdr1Start, cdr1End, cdr2Start, cdr2End].join("\t")
     }
 }
