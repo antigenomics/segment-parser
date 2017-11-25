@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2017 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package com.antigenomics.imgtparser
+package com.antigenomics.segmentparser
 
 class MigecSegmentRecord {
     final String species, gene, segment, id, sequence
-    final int referencePoint, cdr1Start, cdr1End, cdr2Start, cdr2End
+    final int referencePoint,
+              cdr1Start, cdr1End,
+              cdr2Start, cdr2End,
+              cdr25Start, cdr25End
 
     MigecSegmentRecord(String species, String gene, String segment, String id, String sequence) {
         this(species, gene, segment, id, sequence, -1)
@@ -26,11 +29,17 @@ class MigecSegmentRecord {
 
     MigecSegmentRecord(String species, String gene, String segment, String id, String sequence,
                        int referencePoint) {
-        this(species, gene, segment, id, sequence, referencePoint, -1, -1, -1, -1)
+        this(species, gene, segment, id, sequence, referencePoint,
+                -1, -1,
+                -1, -1,
+                -1, -1)
     }
 
     MigecSegmentRecord(String species, String gene, String segment, String id, String sequence,
-                       int referencePoint, int cdr1Start, int cdr1End, int cdr2Start, int cdr2End) {
+                       int referencePoint,
+                       int cdr1Start, int cdr1End,
+                       int cdr2Start, int cdr2End,
+                       int cdr25Start, int cdr25End) {
         this.species = species
         this.gene = gene
         this.segment = segment
@@ -41,15 +50,21 @@ class MigecSegmentRecord {
         this.cdr1End = cdr1End
         this.cdr2Start = cdr2Start
         this.cdr2End = cdr2End
+        this.cdr25Start = cdr25Start
+        this.cdr25End = cdr25End
     }
 
     final static String HEADER = "#species\tgene\tsegment\tid\t" +
             "reference_point\tsequence\t" +
-            "cdr1.start\tcdr1.end\tcdr2.start\tcdr2.end"
+            "cdr1.start\tcdr1.end\t" +
+            "cdr2.start\tcdr2.end\t" +
+            "cdr2.5.start\tcdr2.5.end"
 
     @Override
     String toString() {
         [species, gene, segment, id, referencePoint, sequence,
-         cdr1Start, cdr1End, cdr2Start, cdr2End].join("\t")
+         cdr1Start, cdr1End,
+         cdr2Start, cdr2End,
+         cdr25Start, cdr25End].join("\t")
     }
 }

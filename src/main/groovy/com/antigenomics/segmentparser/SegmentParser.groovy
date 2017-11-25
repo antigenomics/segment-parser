@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2017 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 
 
-package com.antigenomics.imgtparser
+package com.antigenomics.segmentparser
 
-def cli = new CliBuilder(usage: 'ImgtParser [options] input_imgt_genedb output_file_prefix')
+def cli = new CliBuilder(usage: 'SegmentParser [options] input_imgt_genedb output_file_prefix')
 cli.b(longOpt: 'report-bad', 'reports \"bad\" IMGT records, i.e. those that are not V/D/J segment or ' +
         'V and J segments that do not have a reference point (conserved Cys or Phy/Trp)')
 cli.n(longOpt: 'non-func', 'include non-functional alleles (ORF and Pseudogene) in output')
@@ -58,7 +58,9 @@ if (outputFile.absoluteFile.parentFile)
 outputFile.withPrintWriter { pw ->
     outputFileCdr12.withPrintWriter { pw12 ->
         pw.println(MigecSegmentRecord.HEADER)
-        pw12.println("species\tgene\tseqnt\tseqaa\tcdr1nt\tcdr2nt\tcdr1aa\tcdr2aa")
+        pw12.println("species\tgene\tseqnt\tseqaa\t" +
+                "cdr1nt\tcdr2nt\tcdr2.5nt\t" +
+                "cdr1aa\tcdr2aa\tcdr2.5aa")
         reader.each { fastaRecord ->
             def imgtRecord = new ImgtRecord(fastaRecord, subspecies)
             def migecRecord = imgtParser.parseRecord(imgtRecord)
@@ -70,12 +72,16 @@ outputFile.withPrintWriter { pw ->
                          migecRecord.cdr1End, migecRecord.cdr2End].every { it >= 0 }) {
                     def cdr1nt = migecRecord.sequence.substring(migecRecord.cdr1Start, migecRecord.cdr1End),
                         cdr2nt = migecRecord.sequence.substring(migecRecord.cdr2Start, migecRecord.cdr2End),
+                        cdr25nt = migecRecord.cdr25Start >= 0 ?
+                                migecRecord.sequence.substring(migecRecord.cdr25Start, migecRecord.cdr25End) : "",
                         cdr1aa = Util.translateLinear(cdr1nt),
-                        cdr2aa = Util.translateLinear(cdr2nt)
+                        cdr2aa = Util.translateLinear(cdr2nt),
+                        cdr25aa = Util.translateLinear(cdr25nt)
 
                     pw12.println([migecRecord.species, migecRecord.id,
                                   migecRecord.sequence, Util.translateLinear(migecRecord.sequence),
-                                  cdr1nt, cdr2nt, cdr1aa, cdr2aa].join("\t"))
+                                  cdr1nt, cdr2nt, cdr25nt,
+                                  cdr1aa, cdr2aa, cdr25aa].join("\t"))
                 }
             }
         }

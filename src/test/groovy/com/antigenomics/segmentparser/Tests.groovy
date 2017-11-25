@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.imgtparser
+package com.antigenomics.segmentparser
 
 import org.junit.Test
 

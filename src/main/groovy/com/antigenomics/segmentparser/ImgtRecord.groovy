@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2017 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.imgtparser
+package com.antigenomics.segmentparser
 
 class ImgtRecord {
     final String species, fullId, allele, type, functionality,

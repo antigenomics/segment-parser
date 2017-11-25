@@ -1,0 +1,13 @@
+#SPECIES	GENE	V	D	J	VJ
+MusSpretus	TRB	0	0	0	0
+MacacaMulatta	TRB	1	1	1	1
+MusMinutoides	TRB	0	0	0	0
+MusPahari	TRB	0	0	0	0
+MusMusculus	TRA	1	0	1	1
+MusMusculus	TRB	1	1	1	1
+MusMusculus	TRD	1	1	1	1
+MusMusculus	TRG	1	0	0	0
+HomoSapiens	TRA	1	0	1	1
+HomoSapiens	TRB	1	1	1	1
+HomoSapiens	TRD	1	1	1	1
+HomoSapiens	TRG	1	0	1	1

@@ -2,14 +2,14 @@ apply plugin: 'java'
 apply plugin: 'groovy'
 apply plugin: 'application'
 
-mainClassName = 'com.antigenomics.imgtparser.ImgtParser'
+mainClassName = 'com.antigenomics.segmentparser.SegmentParser'
 
 repositories {
     mavenCentral()
 }
 
 jar {
-    baseName = 'imgtparser'
+    baseName = 'segmentparser'
     version = '1.0.0'
 
     manifest {

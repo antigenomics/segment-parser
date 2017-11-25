@@ -1,5 +1,5 @@
 /*
- * Copyright 2013-2015 Mikhail Shugay (mikhail.shugay@gmail.com)
+ * Copyright 2013-2017 Mikhail Shugay (mikhail.shugay@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.antigenomics.imgtparser
+package com.antigenomics.segmentparser
 
 import java.util.regex.Pattern
 
@@ -101,29 +101,54 @@ class ImgtToMigecParser {
     static MigecSegmentRecord createRecord(ImgtRecord imgtRecord, String gene, String segment,
                                            int referencePoint) {
         createRecord(imgtRecord, gene, segment,
-                referencePoint, -1, -1, -1, -1)
+                referencePoint,
+                -1, -1,
+                -1, -1,
+                -1, -1)
     }
 
     static MigecSegmentRecord createRecord(ImgtRecord imgtRecord, String gene, String segment,
                                            int referencePoint,
-                                           int cdr1Start, int cdr1End, int cdr2Start, int cdr2End) {
+                                           int cdr1Start, int cdr1End,
+                                           int cdr2Start, int cdr2End,
+                                           int cdr25Start, int cdr25End) {
         new MigecSegmentRecord(imgtRecord.species, gene,
                 segment, imgtRecord.fullId, sequenceNoGaps(imgtRecord),
                 referencePoint,
-                cdr1Start, cdr1End, cdr2Start, cdr2End)
+                cdr1Start, cdr1End,
+                cdr2Start, cdr2End,
+                cdr25Start, cdr25End)
     }
 
     static int[] getCdr12Indices(ImgtRecord imgtRecord) {
         def cdr1 = sequenceNoGaps(imgtRecord.sequence[(26 * 3)..(38 * 3)]),
-            cdr2 = sequenceNoGaps(imgtRecord.sequence[(55 * 3)..(65 * 3)])
+            cdr2 = sequenceNoGaps(imgtRecord.sequence[(55 * 3)..(65 * 3)]),
+            cdr25 = getCdr25Sequence(imgtRecord)
+
+        // we'll add one extra AA so exact search will not fail for regions with many gaps
 
         def fullSeq = sequenceNoGaps(imgtRecord.sequence)
 
         int cdr1Start = fullSeq.indexOf(cdr1),
-            cdr2Start = fullSeq.indexOf(cdr2)
+            cdr2Start = fullSeq.indexOf(cdr2),
+            cdr25Start = cdr25 != "" ? fullSeq.indexOf(cdr25) : -1
 
-        [cdr1Start, cdr1Start + cdr1.length() - 1,
-         cdr2Start, cdr2Start + cdr2.length() - 1] as int[]
+        [cdr1Start, cdr1Start + cdr1.length() - 1, // subtracting extra AA
+         cdr2Start, cdr2Start + cdr2.length() - 1,
+         cdr25Start, cdr25Start + cdr25.length() - 1] as int[]
+    }
+
+    static String getCdr25Sequence(ImgtRecord imgtRecord) {
+        if ((imgtRecord.species.toUpperCase().contains("HOMO") || imgtRecord.species.toUpperCase().contains("MACACA")) &&
+                (imgtRecord.fullId.startsWith("TRA") || imgtRecord.fullId.startsWith("TRB"))) {
+            return sequenceNoGaps(imgtRecord.sequence[(80 * 3)..(85 * 3)])
+        } else if (imgtRecord.species.toUpperCase().contains("MUS")) {
+            if (imgtRecord.fullId.startsWith("TRA"))
+                return sequenceNoGaps(imgtRecord.sequence[(81 * 3)..(87 * 3)])
+            else if (imgtRecord.fullId.startsWith("TRB"))
+                return sequenceNoGaps(imgtRecord.sequence[(80 * 3)..(85 * 3)])
+        }
+        return ""
     }
 
     MigecSegmentRecord parseRecord(ImgtRecord imgtRecord) {
@@ -149,7 +174,9 @@ class ImgtToMigecParser {
                     segmentPresenceArr[0] = true
                     int[] cdrIndices = getCdr12Indices(imgtRecord)
                     return createRecord(imgtRecord, gene, "Variable", vReferencePoint,
-                            cdrIndices[0], cdrIndices[1], cdrIndices[2], cdrIndices[3])
+                            cdrIndices[0], cdrIndices[1],
+                            cdrIndices[2], cdrIndices[3],
+                            cdrIndices[4], cdrIndices[5])
 
                 case "D-REGION":
                     segmentPresenceArr[1] = true
