@@ -5,3 +5,5 @@ build/
 gradle/
 gradlew*
 imgt-dump/
+IMGT_V-QUEST*
+igmt_all.fasta
